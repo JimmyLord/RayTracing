@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Runnable.h"
+#include "Math/Vector.h"
 
 namespace fw
 {
@@ -19,6 +20,12 @@ public:
     virtual void Update(float deltaTime);
     virtual void Draw();
 
+    void RenderFrame();
+
 protected:
     fw::ImGuiManager* m_pImGuiManager;
+
+    unsigned char* m_Pixels;
+    GLuint m_TextureHandle;
+    ivec2 m_TextureSize;
 };
