@@ -20,6 +20,7 @@ public:
     virtual void Update(float deltaTime);
     virtual void Draw();
 
+    vec3 CalculatePixelColorForRay(ray r);
     void RenderFrame();
 
 protected:
@@ -28,4 +29,9 @@ protected:
     unsigned char* m_Pixels;
     GLuint m_TextureHandle;
     ivec2 m_TextureSize;
+
+    vec2 m_ViewSize;
+    float m_FocalLength;
+
+    vec3 m_CameraPosition;
 };

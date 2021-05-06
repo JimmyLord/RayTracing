@@ -12,7 +12,12 @@ RayTracingRunnable::RayTracingRunnable(fw::FWCore* pFramework)
 
     m_Pixels = nullptr;
     m_TextureHandle = 0;
-    m_TextureSize.Set( 256, 256 );
+    m_TextureSize.Set( 512, 256 );
+
+    m_ViewSize.Set( 4, 2 );
+    m_FocalLength = 1;
+
+    m_CameraPosition.Set( 0, 0, 0 );
 }
 
 RayTracingRunnable::~RayTracingRunnable()
@@ -80,8 +85,23 @@ void RayTracingRunnable::Draw()
     m_pImGuiManager->EndFrame();
 }
 
+vec3 RayTracingRunnable::CalculatePixelColorForRay(ray r)
+{
+    vec3 dir = r.dir.GetNormalized();
+
+    // percH is 0 at bottom, 1 at top.
+    float percH = (dir.y + 1.0f) * 0.5f;
+
+    return (1.0f-percH)*vec3(1.0f, 1.0f, 1.0f) + percH*vec3(0.5f, 0.7f, 1.0f);
+}
+
 void RayTracingRunnable::RenderFrame()
 {
+    // Precalculate the lower left coordinate of our viewport.
+    vec3 horizontal = vec3::Right()*m_ViewSize.x;
+    vec3 vertical = vec3::Up()*m_ViewSize.y;
+    vec3 viewportLL = m_CameraPosition - horizontal/2 - vertical/2 + vec3::In()*m_FocalLength;
+
     for( int y=0; y<m_TextureSize.y; y++ )
     {
         for( int x=0; x<m_TextureSize.x; x++ )
@@ -89,27 +109,18 @@ void RayTracingRunnable::RenderFrame()
             int baseIndex = y*m_TextureSize.x + x;
             int index = baseIndex * 4;
 
-            if( y < 128 )
-            {
-                m_Pixels[index+0] = 0;
-                m_Pixels[index+1] = 255;
-                m_Pixels[index+2] = 0;
-                m_Pixels[index+3] = 255;
-            }
-            else if( x % 2 == 0 )
-            {
-                m_Pixels[index+0] = 255;
-                m_Pixels[index+1] = 255;
-                m_Pixels[index+2] = 255;
-                m_Pixels[index+3] = 255;
-            }
-            else
-            {
-                m_Pixels[index+0] = 0;
-                m_Pixels[index+1] = 0;
-                m_Pixels[index+2] = 0;
-                m_Pixels[index+3] = 255;
-            }
+            float percX = x / (float)(m_TextureSize.x - 1);
+            float percY = y / (float)(m_TextureSize.y - 1);
+
+            vec3 dir = viewportLL + horizontal*percX + vertical*percY - m_CameraPosition;
+            ray r( m_CameraPosition, dir );
+
+            vec3 color = CalculatePixelColorForRay( r );
+
+            m_Pixels[index+0] = (unsigned char)(color.x * 255);
+            m_Pixels[index+1] = (unsigned char)(color.y * 255);
+            m_Pixels[index+2] = (unsigned char)(color.z * 255);
+            m_Pixels[index+3] = 255;
         }
     }
 
