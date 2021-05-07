@@ -32,8 +32,16 @@ public:
     vec3 operator*(float o) const { return vec3( x*o, y*o, z*o ); }
     vec3 operator/(float o) const { return vec3( x/o, y/o, z/o ); }
 
+    vec3& operator+=(float o) { x+=o, y+=o, z+=o; return *this; }
+    vec3& operator-=(float o) { x-=o, y-=o, z-=o; return *this; }
+    vec3& operator*=(float o) { x*=o, y*=o, z*=o; return *this; }
+    vec3& operator/=(float o) { x/=o, y/=o, z/=o; return *this; }
+
     float Length() const { return sqrtf( x*x + y*y + z*z ); }
+    void Normalize() { *this /= Length(); }
     vec3 GetNormalized() const { return *this / Length(); }
+
+    float Dot(const vec3& o) const { return x*o.x + y*o.y + z*o.z; }
 
     void Clamp(float min, float max)
     {
@@ -59,7 +67,7 @@ public:
     ray() {}
     ray(const vec3& o, const vec3& d) { origin = o; dir = d; }
 
-    vec3 at(float t)
+    vec3 at(float t) const
     {
         return origin + t*dir;
     }

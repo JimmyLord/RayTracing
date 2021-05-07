@@ -34,4 +34,10 @@ protected:
     float m_FocalLength;
 
     vec3 m_CameraPosition;
+
+    // Temp light values.
+    vec3 m_MaterialColor;
+    vec3 m_LightColor;
+
+    vec3 m_LightPos;
 };
